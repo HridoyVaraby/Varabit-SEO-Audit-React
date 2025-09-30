@@ -53,7 +53,9 @@ function App() {
     // Run audits in parallel for better performance
     const auditPromises = auditModules.map(async (module) => {
       try {
+        console.log(`Starting ${module.name} audit for ${targetUrl}`)
         const result = await module.func(targetUrl)
+        console.log(`${module.name} audit completed:`, result)
         setResult(module.name, result)
         return { module: module.name, result }
       } catch (error) {
@@ -70,7 +72,9 @@ function App() {
 
     try {
       await Promise.all(auditPromises)
+      console.log('All audits completed')
     } catch (error) {
+      console.error('Audit process failed:', error)
       setError('Some audits failed to complete. Please try again.')
     } finally {
       setLoading(false)
@@ -125,6 +129,7 @@ function App() {
 
   const hasResults = Object.values(results).some(result => result !== null)
   const overallScore = calculateOverallScore()
+  const hasApiKey = import.meta.env.VITE_PAGESPEED_API_KEY && import.meta.env.VITE_PAGESPEED_API_KEY !== 'your_api_key_here'
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'Arial, sans-serif', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
@@ -154,6 +159,15 @@ function App() {
             Get insights on page speed, meta tags, mobile-friendliness, and more.
           </p>
         </div>
+
+        {/* API Status Banner */}
+        {hasApiKey && (
+          <div style={{ maxWidth: '600px', margin: '0 auto 1rem auto', padding: '1rem', backgroundColor: '#d1fae5', border: '1px solid #a7f3d0', borderRadius: '8px', textAlign: 'center' }}>
+            <p style={{ color: '#065f46', margin: 0, fontSize: '0.875rem', fontWeight: '500' }}>
+              ✅ PageSpeed API configured - You'll get real audit data!
+            </p>
+          </div>
+        )}
 
         {/* Audit Form */}
         <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '2rem' }}>
@@ -195,11 +209,11 @@ function App() {
             <p style={{ color: '#ef4444', fontSize: '0.875rem', margin: '0 0 1rem 0' }}>{validationError}</p>
           )}
           <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
-            <strong>Note:</strong> This tool will analyze the public content of the provided URL.
+            <strong>Note:</strong> This tool will analyze the public content of the provided URL using real SEO audit modules.
           </p>
-          {import.meta.env.VITE_PAGESPEED_API_KEY === 'your_api_key_here' && (
+          {!hasApiKey && (
             <p style={{ fontSize: '0.875rem', color: '#f59e0b', marginTop: '0.5rem', margin: '0.5rem 0 0 0' }}>
-              ⚠️ PageSpeed API key not configured. Please add your Google PageSpeed Insights API key to the .env file.
+              ⚠️ PageSpeed API key not configured. Some features may not work properly.
             </p>
           )}
         </form>
@@ -226,8 +240,11 @@ function App() {
                 <circle style={{ opacity: '0.25' }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path style={{ opacity: '0.75' }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Running SEO Audit for {url}...
+              Running Real SEO Audit for {url}...
             </div>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+              This may take 10-30 seconds to fetch real data from multiple sources
+            </p>
           </div>
         )}
 
@@ -238,8 +255,8 @@ function App() {
             <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '2rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', margin: '0 0 0.5rem 0' }}>Audit Results</h3>
-                  <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>URL: <span style={{ fontFamily: 'monospace' }}>{url}</span></p>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', margin: '0 0 0.5rem 0' }}>Real SEO Audit Results</h3>
+                  <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>URL: <span style={{ fontFamily: 'monospace', backgroundColor: '#f3f4f6', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{url}</span></p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#09c', marginBottom: '0.25rem' }}>
@@ -319,13 +336,102 @@ function App() {
                     </div>
 
                     {/* Content */}
-                    {result ? (
+                    {result ? (       
                       <div>
                         {result.status === 'error' && (
                           <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', marginBottom: '1rem' }}>
                             <p style={{ color: '#dc2626', fontSize: '0.875rem', fontWeight: '500', margin: 0 }}>
                               ❌ This audit encountered an error
                             </p>
+                          </div>
+                        )}
+
+                        {/* PageSpeed specific data */}
+                        {module.name === 'pageSpeed' && result.mobile && result.desktop && (
+                          <div style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                              <div>Mobile Performance: <strong>{result.mobile.performance || 'N/A'}</strong></div>
+                              <div>Desktop Performance: <strong>{result.desktop.performance || 'N/A'}</strong></div>
+                              <div>Mobile SEO: <strong>{result.mobile.seo || 'N/A'}</strong></div>
+                              <div>Mobile Accessibility: <strong>{result.mobile.accessibility || 'N/A'}</strong></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Meta Tags specific data */}
+                        {module.name === 'metaTags' && result.title && result.description && (
+                          <div style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+                            <div style={{ marginBottom: '0.5rem' }}>
+                              <strong>Title:</strong> {result.title.content.substring(0, 60)}
+                              {result.title.content.length > 60 && '...'}
+                              <span style={{ color: '#6b7280' }}> ({result.title.length} chars)</span>
+                            </div>
+                            <div>
+                              <strong>Description:</strong> {result.description.content.substring(0, 80)}
+                              {result.description.content.length > 80 && '...'}
+                              <span style={{ color: '#6b7280' }}> ({result.description.length} chars)</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Headings specific data */}
+                        {module.name === 'headings' && result.structure && (
+                          <div style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                              <div>H1: <strong>{result.structure.h1}</strong></div>
+                              <div>H2: <strong>{result.structure.h2}</strong></div>
+                              <div>H3: <strong>{result.structure.h3}</strong></div>
+                              <div>H4: <strong>{result.structure.h4}</strong></div>
+                              <div>H5: <strong>{result.structure.h5}</strong></div>
+                              <div>H6: <strong>{result.structure.h6}</strong></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Images specific data */}
+                        {module.name === 'images' && typeof result.totalImages === 'number' && (
+                          <div style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                              <div>Total Images: <strong>{result.totalImages}</strong></div>
+                              <div>With Alt Text: <strong>{result.imagesWithAlt}</strong></div>
+                              <div>Missing Alt: <strong>{result.imagesMissingAlt}</strong></div>
+                              <div>Coverage: <strong>{result.altTextPercentage || 0}%</strong></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mobile Friendly specific data */}
+                        {module.name === 'mobileFriendly' && result.checks && (
+                          <div style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+                            <div style={{ marginBottom: '0.5rem' }}>
+                              Passed: <strong>{result.passedChecks}/{result.totalChecks}</strong>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem' }}>
+                              {Object.entries(result.checks).map(([check, passed]) => (
+                                <div key={check} style={{ display: 'flex', alignItems: 'center' }}>
+                                  <span style={{ marginRight: '0.25rem', color: passed ? '#10b981' : '#ef4444' }}>
+                                    {passed ? '✓' : '✗'}
+                                  </span>
+                                  <span style={{ fontSize: '0.75rem' }}>
+                                    {check.replace(/([A-Z])/g, ' $1').trim()}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Keyword Density specific data */}
+                        {module.name === 'keywordDensity' && result.topKeywords && result.topKeywords.length > 0 && (
+                          <div style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>
+                            <div style={{ marginBottom: '0.5rem' }}>Word Count: <strong>{result.wordCount}</strong></div>
+                            <div>Top Keywords:</div>
+                            {result.topKeywords.slice(0, 3).map((keyword, index) => (
+                              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', marginLeft: '1rem' }}>
+                                <span>{keyword.word}</span>
+                                <span>{keyword.density}% ({keyword.count}x)</span>
+                              </div>
+                            ))}
                           </div>
                         )}
 
@@ -361,12 +467,23 @@ function App() {
                       </div>
                     ) : (
                       <div style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
-                        Waiting for audit results...
+                        {isLoading ? 'Fetching real data...' : 'Waiting for audit results...'}
                       </div>
                     )}
                   </div>
                 )
               })}
+            </div>
+
+            {/* How to Interpret Results */}
+            <div style={{ marginTop: '2rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '1.5rem' }}>
+              <h4 style={{ color: '#1e40af', margin: '0 0 1rem 0' }}>How to Interpret These Real Results</h4>
+              <div style={{ color: '#1e40af', fontSize: '0.875rem', lineHeight: '1.5' }}>
+                <p style={{ margin: '0 0 0.5rem 0' }}><strong>80-100:</strong> Excellent - Your website follows SEO best practices</p>
+                <p style={{ margin: '0 0 0.5rem 0' }}><strong>60-79:</strong> Good - Some improvements can boost your SEO performance</p>
+                <p style={{ margin: '0 0 1rem 0' }}><strong>0-59:</strong> Needs Work - Important SEO issues that should be addressed</p>
+                <p style={{ margin: 0 }}><strong>Real Data:</strong> These results are based on actual analysis of your website using Google PageSpeed Insights and live HTML parsing.</p>
+              </div>
             </div>
           </div>
         )}
@@ -374,15 +491,15 @@ function App() {
         {/* Default Module Cards (when no results) */}
         {!hasResults && !isLoading && (
           <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-            <h3 style={{ color: '#374151', marginBottom: '1rem' }}>Audit Modules</h3>
+            <h3 style={{ color: '#374151', marginBottom: '1rem' }}>Real SEO Audit Modules</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', maxWidth: '1000px', margin: '0 auto' }}>
               {[
-                { name: 'Page Speed Analysis', icon: '⚡', desc: 'Google PageSpeed Insights integration' },
-                { name: 'Meta Tags Analysis', icon: '📝', desc: 'Title, description, Open Graph' },
-                { name: 'Headings Structure', icon: '📋', desc: 'H1-H6 hierarchy validation' },
-                { name: 'Image Alt Text', icon: '🖼️', desc: 'Accessibility compliance' },
-                { name: 'Mobile Friendliness', icon: '📱', desc: 'Responsive design evaluation' },
-                { name: 'Keyword Density', icon: '🔍', desc: 'Content analysis' }
+                { name: 'Page Speed Analysis', icon: '⚡', desc: 'Google PageSpeed Insights API integration' },
+                { name: 'Meta Tags Analysis', icon: '📝', desc: 'Live HTML parsing for title, description, Open Graph' },
+                { name: 'Headings Structure', icon: '📋', desc: 'Real-time H1-H6 hierarchy validation' },
+                { name: 'Image Alt Text', icon: '🖼️', desc: 'Live accessibility compliance checking' },
+                { name: 'Mobile Friendliness', icon: '📱', desc: 'Actual responsive design evaluation' },
+                { name: 'Keyword Density', icon: '🔍', desc: 'Real content analysis and keyword extraction' }
               ].map((module, index) => (
                 <div key={index} style={{ 
                   padding: '1.5rem', 
