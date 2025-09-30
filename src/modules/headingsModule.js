@@ -81,8 +81,12 @@ export const runHeadingsAudit = async (url) => {
     return {
       headings: [],
       structure: { h1: 0, h2: 0, h3: 0, h4: 0, h5: 0, h6: 0 },
-      issues: [error.message],
-      suggestions: ['Check if the URL is accessible', 'Verify CORS policy allows content fetching'],
+      issues: [error.message || 'Failed to analyze heading structure'],
+      suggestions: [
+        'Check if the URL is accessible', 
+        'Note: This demo uses fallback data when CORS prevents direct access',
+        'In production, you would use a proper proxy server'
+      ],
       totalHeadings: 0,
       score: 0,
       status: 'error'

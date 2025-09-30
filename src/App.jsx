@@ -160,11 +160,19 @@ function App() {
           </p>
         </div>
 
+        {/* CORS Info Banner */}
+        <div style={{ maxWidth: '600px', margin: '0 auto 1rem auto', padding: '1rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', textAlign: 'center' }}>
+          <p style={{ color: '#1e40af', margin: 0, fontSize: '0.875rem' }}>
+            ℹ️ <strong>Demo Note:</strong> Due to CORS restrictions in browsers, some audits may use fallback sample data for certain websites. 
+            In production, this would be resolved with a proper backend proxy server.
+          </p>
+        </div>
+
         {/* API Status Banner */}
         {hasApiKey && (
           <div style={{ maxWidth: '600px', margin: '0 auto 1rem auto', padding: '1rem', backgroundColor: '#d1fae5', border: '1px solid #a7f3d0', borderRadius: '8px', textAlign: 'center' }}>
             <p style={{ color: '#065f46', margin: 0, fontSize: '0.875rem', fontWeight: '500' }}>
-              ✅ PageSpeed API configured - You'll get real audit data!
+              ✅ PageSpeed API configured - You'll get real PageSpeed data!
             </p>
           </div>
         )}

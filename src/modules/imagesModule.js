@@ -107,8 +107,12 @@ export const runImagesAudit = async (url) => {
       imagesWithAlt: 0,
       imagesMissingAlt: 0,
       missingAltImages: [],
-      issues: [error.message],
-      suggestions: ['Check if the URL is accessible', 'Verify CORS policy allows content fetching'],
+      issues: [error.message || 'Failed to analyze images'],
+      suggestions: [
+        'Check if the URL is accessible', 
+        'Note: This demo uses fallback data when CORS prevents direct access',
+        'In production, you would use a proper proxy server'
+      ],
       altTextPercentage: 0,
       score: 0,
       status: 'error'

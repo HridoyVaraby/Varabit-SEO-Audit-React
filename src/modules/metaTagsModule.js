@@ -86,8 +86,12 @@ export const runMetaTagsAudit = async (url) => {
       viewport: { content: '', hasMobileViewport: false },
       openGraph: { title: '', description: '', image: '', issues: [] },
       score: 0,
-      issues: [error.message],
-      suggestions: ['Check if the URL is accessible', 'Verify CORS policy allows content fetching'],
+      issues: [error.message || 'Failed to analyze meta tags'],
+      suggestions: [
+        'Check if the URL is accessible', 
+        'Note: This demo uses fallback data when CORS prevents direct access',
+        'In production, you would use a proper proxy server'
+      ],
       status: 'error'
     };
   }
