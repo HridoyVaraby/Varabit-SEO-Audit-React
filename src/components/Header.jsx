@@ -2,37 +2,42 @@ import React from 'react';
 
 const Header = () => {
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+    <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <img 
               src="https://varabit.com/images/logo/varabit_logo.svg" 
               alt="Varabit Logo" 
-              className="h-8 w-auto"
+              style={{ height: '32px', width: 'auto' }}
               onError={(e) => {
-                // Fallback if logo doesn't load
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'block';
               }}
             />
             <span 
-              className="text-2xl font-bold text-varabit hidden"
-              style={{ display: 'none' }}
+              style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: 'bold', 
+                color: '#09c',
+                display: 'none'
+              }}
             >
               Varabit
             </span>
-            <div className="hidden md:block">
-              <span className="text-lg font-semibold text-gray-700">SEO Audit Tool</span>
+            <div style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>
+              <span style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151' }}>
+                SEO Audit Tool
+              </span>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <a 
               href="https://varabit.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-varabit hover:text-blue-700 font-medium"
+              style={{ color: '#09c', textDecoration: 'none', fontWeight: '500' }}
             >
               Visit Varabit
             </a>
